@@ -197,7 +197,7 @@
     </div>
   </div>
 
-  <div class="footer">EngageIQ · <span id="footerSource">Mock data</span> · Built with Claude AI · May 2026</div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;"><div><div style="font-size:13px;font-weight:500;color:var(--text);">Microsoft Graph API Connection</div><div style="font-size:12px;color:var(--text2);margin-top:3px;" id="apiStatusText">Click Test Connection to verify your Azure credentials</div></div><div style="display:flex;align-items:center;gap:10px;"><span id="apiStatusBadge" style="font-size:12px;padding:4px 12px;border-radius:20px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);">Not tested</span><button onclick="testApiConnection()" style="font-size:12px;font-weight:500;padding:7px 16px;border-radius:8px;background:var(--purple);color:#fff;border:none;cursor:pointer;font-family:DM Sans,sans-serif;">Test connection</button></div></div><div class="footer">EngageIQ · <span id="footerSource">Mock data</span> · Built with Claude AI · May 2026</div>
 </div>
 
 <script>
@@ -309,6 +309,34 @@ function setFilter(btn, val) {
 
 // Initial load
 loadData();
+
+async function testApiConnection() {
+  const badge = document.getElementById('apiStatusBadge');
+  const text = document.getElementById('apiStatusText');
+  badge.textContent = 'Testing...';
+  badge.style.background = 'var(--surface2)';
+  badge.style.color = 'var(--text2)';
+  try {
+    const res = await fetch(API + '/api/graph/test');
+    const json = await res.json();
+    if (json.connected) {
+      badge.textContent = '✅ Connected';
+      badge.style.background = '#E1F5EE';
+      badge.style.color = '#1D9E75';
+      text.textContent = 'Connected to: ' + json.organisation + ' · Graph API working!';
+    } else {
+      badge.textContent = '❌ Failed';
+      badge.style.background = '#FCEBEB';
+      badge.style.color = '#E24B4A';
+      text.textContent = json.message;
+    }
+  } catch(e) {
+    badge.textContent = '❌ Error';
+    badge.style.background = '#FCEBEB';
+    badge.style.color = '#E24B4A';
+    text.textContent = 'Could not reach API: ' + e.message;
+  }
+}
 </script>
 </body>
 </html>
