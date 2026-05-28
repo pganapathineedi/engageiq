@@ -8,7 +8,7 @@ async function getAccessToken() {
   const clientId = process.env.AZURE_CLIENT_ID;
   const clientSecret = process.env.AZURE_CLIENT_SECRET;
 
-  const url = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`;
+  const url = `https://login.microsoftonline.com/consumers/oauth2/v2.0/token`;
 
   const body = new URLSearchParams({
     grant_type: 'client_credentials',
