@@ -218,6 +218,12 @@ input[type=range]{flex:1.2;accent-color:var(--purple);}
 .leg-dot{width:9px;height:9px;border-radius:2px;}
 
 .footer{text-align:center;font-size:11px;color:var(--text3);padding:14px 0 4px;}
+.ph-person{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.ph-person:last-child{border-bottom:none;}
+.ph-meta{text-align:center;min-width:64px;}
+.ph-meta-val{font-size:16px;font-weight:600;line-height:1;}
+.ph-meta-lbl{font-size:10px;color:var(--text2);margin-top:2px;}
+.ph-flag{font-size:11px;font-weight:500;padding:4px 12px;border-radius:20px;min-width:80px;text-align:center;}
 </style>
 </head>
 <body>
@@ -525,13 +531,13 @@ input[type=range]{flex:1.2;accent-color:var(--purple);}
           <div class="comp-trend" style="color:#EF9F27;">→ Improving</div>
           <div class="comp-source">Source: MIT Sloan Management Review</div>
         </div>
-        <div class="comp-card">
+        <div class="comp-card" style="cursor:pointer;" onclick="togglePeopleHealth()">
           <div class="comp-top" style="background:#1D9E75;"></div>
           <div class="comp-weight" style="background:#E1F5EE;color:#1D9E75;">15% weight</div>
           <div class="comp-score" style="color:#1D9E75;">68<span style="font-size:13px;font-weight:400;">/100</span></div>
           <div class="comp-title">People Health</div>
           <div class="comp-items">• Back-to-back meeting rate<br>• Deep work time per day<br>• Meetings outside core hours</div>
-          <div class="comp-trend" style="color:#1D9E75;">↑ Good</div>
+          <div class="comp-trend" style="color:#1D9E75;">↑ Good · <span style="color:#464EB8;" id="ph-toggle-text">View detail →</span></div>
           <div class="comp-source">Source: Microsoft Neuroscience Study 2021</div>
         </div>
       </div>
@@ -559,11 +565,51 @@ input[type=range]{flex:1.2;accent-color:var(--purple);}
         </div>
       </div>
 
-      <div class="aibox">
-        <div class="ai-hdr"><div class="ai-spark">✨</div><span class="ai-label">Claude AI · Health insight</span></div>
-        <div class="ai-text">Your score of <strong>61/100</strong> places you in the top 35% of organisations your size. Cost Efficiency at <strong>48/100</strong> is your biggest drag — driven by high ghost attendee rates and recurring meetings with no measurable outcomes. Addressing invite hygiene alone (currently 35% of meetings have no agenda) could lift your score to <strong>69+</strong> within 2 weeks without any structural changes.</div>
-        <div class="ai-action"><button onclick="alert('In production: generates a 4-week improvement plan.')">Generate improvement plan →</button></div>
+      <div id="people-health-detail" style="display:none;margin-bottom:14px;">
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-hdr">
+            <div class="card-title">People Health — burnout &amp; meeting load</div>
+            <div style="font-size:11px;color:var(--text2);">Based on calendar load · last 4 weeks</div>
+          </div>
+
+          <div class="row4" style="margin-bottom:16px;">
+            <div class="mc"><div class="mc-icon" style="background:#FCEBEB;">🔥</div><div class="mc-val" style="color:#E24B4A;">3</div><div class="mc-label">High burnout risk</div><div class="mc-trend dn">↑ 1 vs last week</div></div>
+            <div class="mc"><div class="mc-icon" style="background:#FAEEDA;">⚠️</div><div class="mc-val" style="color:#EF9F27;">5</div><div class="mc-label">Moderate risk</div><div class="mc-trend neu">No change</div></div>
+            <div class="mc"><div class="mc-icon" style="background:#E1F5EE;">⏱</div><div class="mc-val">2.8h</div><div class="mc-label">Avg deep work/day</div><div class="mc-trend up">↑ 0.3h vs last week</div></div>
+            <div class="mc"><div class="mc-icon" style="background:#EEEDFE;">📅</div><div class="mc-val">23</div><div class="mc-label">Avg meetings/person/wk</div><div class="mc-trend dn">↑ 2 vs last week</div></div>
+          </div>
+
+          <div class="card-title" style="margin-bottom:10px;">Individual meeting load</div>
+          <div style="display:flex;flex-direction:column;gap:0;">
+            <div class="ph-person"><div class="p-av" style="background:#F5C4B3;color:#712B13;">OH</div><div style="flex:1"><div class="p-name">Omar Hassan</div><div class="p-role">Operations Manager</div></div><div class="ph-meta"><div class="ph-meta-val" style="color:#E24B4A;">38</div><div class="ph-meta-lbl">meetings/wk</div></div><div class="ph-meta"><div class="ph-meta-val" style="color:#E24B4A;">0.8h</div><div class="ph-meta-lbl">deep work</div></div><div class="ph-flag" style="background:#FCEBEB;color:#A32D2D;">High risk</div></div>
+            <div class="ph-person"><div class="p-av" style="background:#B5D4F4;color:#0C447C;">AK</div><div style="flex:1"><div class="p-name">Ananya Kumar</div><div class="p-role">Engineering Lead</div></div><div class="ph-meta"><div class="ph-meta-val" style="color:#E24B4A;">34</div><div class="ph-meta-lbl">meetings/wk</div></div><div class="ph-meta"><div class="ph-meta-val" style="color:#E24B4A;">1.1h</div><div class="ph-meta-lbl">deep work</div></div><div class="ph-flag" style="background:#FCEBEB;color:#A32D2D;">High risk</div></div>
+            <div class="ph-person"><div class="p-av" style="background:#9FE1CB;color:#085041;">MS</div><div style="flex:1"><div class="p-name">Marcus Silva</div><div class="p-role">Product Manager</div></div><div class="ph-meta"><div class="ph-meta-val" style="color:#EF9F27;">29</div><div class="ph-meta-lbl">meetings/wk</div></div><div class="ph-meta"><div class="ph-meta-val" style="color:#EF9F27;">1.9h</div><div class="ph-meta-lbl">deep work</div></div><div class="ph-flag" style="background:#FAEEDA;color:#854F0B;">Moderate</div></div>
+            <div class="ph-person"><div class="p-av" style="background:#CECBF6;color:#3C3489;">PL</div><div style="flex:1"><div class="p-name">Priya Laxman</div><div class="p-role">Scrum Master</div></div><div class="ph-meta"><div class="ph-meta-val" style="color:#1D9E75;">18</div><div class="ph-meta-lbl">meetings/wk</div></div><div class="ph-meta"><div class="ph-meta-val" style="color:#1D9E75;">3.4h</div><div class="ph-meta-lbl">deep work</div></div><div class="ph-flag" style="background:#E1F5EE;color:#0F6E56;">Healthy</div></div>
+            <div class="ph-person"><div class="p-av" style="background:#FAC775;color:#633806;">JT</div><div style="flex:1"><div class="p-name">James Tran</div><div class="p-role">Solutions Architect</div></div><div class="ph-meta"><div class="ph-meta-val" style="color:#1D9E75;">15</div><div class="ph-meta-lbl">meetings/wk</div></div><div class="ph-meta"><div class="ph-meta-val" style="color:#1D9E75;">3.8h</div><div class="ph-meta-lbl">deep work</div></div><div class="ph-flag" style="background:#E1F5EE;color:#0F6E56;">Healthy</div></div>
+          </div>
+        </div>
+
+        <div class="row2">
+          <div class="card">
+            <div class="card-hdr"><div class="card-title">Team meeting load</div></div>
+            <div class="dept-row"><span class="dept-name">Operations</span><div class="dept-track"><div class="dept-fill" style="width:90%;background:#E24B4A;"></div></div><span class="dept-pct" style="color:#E24B4A;">34/wk</span></div>
+            <div class="dept-row"><span class="dept-name">Engineering</span><div class="dept-track"><div class="dept-fill" style="width:74%;background:#EF9F27;"></div></div><span class="dept-pct" style="color:#EF9F27;">28/wk</span></div>
+            <div class="dept-row"><span class="dept-name">Product</span><div class="dept-track"><div class="dept-fill" style="width:66%;background:#EF9F27;"></div></div><span class="dept-pct" style="color:#EF9F27;">25/wk</span></div>
+            <div class="dept-row"><span class="dept-name">Sales</span><div class="dept-track"><div class="dept-fill" style="width:53%;background:#1D9E75;"></div></div><span class="dept-pct" style="color:#1D9E75;">20/wk</span></div>
+            <div class="dept-row"><span class="dept-name">Support</span><div class="dept-track"><div class="dept-fill" style="width:42%;background:#1D9E75;"></div></div><span class="dept-pct" style="color:#1D9E75;">16/wk</span></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><div class="card-title">Burnout risk — why it matters</div></div>
+            <div style="font-size:13px;color:var(--text);line-height:1.7;">
+              <div style="margin-bottom:10px;"><strong style="color:#E24B4A;">3 people</strong> are in high burnout risk — back-to-back meetings with under 1 hour of daily deep work.</div>
+              <div style="margin-bottom:10px;">Replacing one senior employee costs <strong>6–9 months of salary</strong>. Early intervention is far cheaper than attrition.</div>
+              <div style="padding:10px 12px;background:var(--surface2);border-radius:8px;font-size:12px;color:var(--text2);">💡 Recommend: protect 2 deep-work blocks/week for Operations team and audit Omar Hassan's recurring meetings.</div>
+            </div>
+          </div>
+        </div>
       </div>
+
+
       <div class="footer">EngageIQ · Mock data · Built with Claude AI · engageiq-t57j.onrender.com</div>
     </div>
 
@@ -793,6 +839,15 @@ function calcCost() {
 // Init
 loadEngagement();
 calcCost();
+
+function togglePeopleHealth() {
+  const detail = document.getElementById('people-health-detail');
+  const txt = document.getElementById('ph-toggle-text');
+  const isHidden = detail.style.display === 'none';
+  detail.style.display = isHidden ? 'block' : 'none';
+  txt.textContent = isHidden ? 'Hide detail ↑' : 'View detail →';
+  if(isHidden) detail.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
 
 function toggleParticipants() {
   const detail = document.getElementById('p-detail');
