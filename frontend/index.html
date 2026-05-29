@@ -3,339 +3,807 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EngageIQ — Meeting Camera Intelligence</title>
+<title>EngageIQ — Meeting Intelligence Platform</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap');
-  :root {
-    --navy:#1E2761;--purple:#464EB8;--purple-lt:#EEEDFE;--teal:#028090;
-    --green:#1D9E75;--green-lt:#E1F5EE;--amber:#EF9F27;--amber-lt:#FAEEDA;
-    --red:#E24B4A;--red-lt:#FCEBEB;--bg:#F4F6FB;--surface:#FFFFFF;
-    --surface2:#F1F4FA;--border:rgba(30,39,97,0.10);--text:#1E2761;
-    --text2:#5A6490;--text3:#8E97C0;--sidebar-w:220px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
-  .sidebar{width:var(--sidebar-w);background:var(--navy);min-height:100vh;position:fixed;left:0;top:0;bottom:0;display:flex;flex-direction:column;z-index:100;}
-  .sb-logo{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px;}
-  .sb-logo-icon{width:32px;height:32px;background:var(--purple);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-  .sb-logo-icon svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;}
-  .sb-logo-text{font-size:16px;font-weight:600;color:#fff;}
-  .sb-logo-sub{font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:.08em;text-transform:uppercase;}
-  .sb-section{padding:20px 14px 8px;font-size:10px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:.1em;}
-  .sb-item{display:flex;align-items:center;gap:10px;padding:9px 14px;color:rgba(255,255,255,0.55);font-size:13px;cursor:pointer;border-radius:6px;margin:2px 8px;transition:all .15s;}
-  .sb-item:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85);}
-  .sb-item.active{background:rgba(70,78,184,0.4);color:#fff;}
-  .sb-item svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;flex-shrink:0;}
-  .sb-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;padding:2px 6px;border-radius:10px;}
-  .sb-bottom{margin-top:auto;padding:16px;border-top:1px solid rgba(255,255,255,0.08);}
-  .sb-user{display:flex;align-items:center;gap:8px;}
-  .sb-av{width:30px;height:30px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;}
-  .sb-uname{font-size:12px;color:rgba(255,255,255,0.7);font-weight:500;}
-  .sb-urole{font-size:10px;color:rgba(255,255,255,0.35);}
-  .main{margin-left:var(--sidebar-w);flex:1;padding:28px 32px;}
-  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
-  .page-title{font-size:22px;font-weight:600;color:var(--text);}
-  .page-sub{font-size:13px;color:var(--text2);margin-top:2px;}
-  .topbar-right{display:flex;align-items:center;gap:10px;}
-  .date-badge{font-size:12px;color:var(--text2);background:var(--surface);border:1px solid var(--border);padding:6px 12px;border-radius:20px;display:flex;align-items:center;gap:6px;}
-  .export-btn{font-size:12px;font-weight:500;padding:7px 14px;border-radius:8px;background:var(--purple);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;transition:opacity .15s;font-family:'DM Sans',sans-serif;}
-  .export-btn:hover{opacity:.85;}
-  .filter-row{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
-  .filter-label{font-size:12px;color:var(--text2);}
-  .fbtn{font-size:12px;padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
-  .fbtn:hover{border-color:var(--purple);color:var(--purple);}
-  .fbtn.active{background:var(--purple);color:#fff;border-color:var(--purple);}
-  .dept-select{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;margin-left:auto;}
-  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
-  .mc{background:var(--surface);border-radius:12px;padding:16px;border:1px solid var(--border);}
-  .mc-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
-  .mc-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;}
-  .mc-val{font-size:26px;font-weight:600;color:var(--text);line-height:1;}
-  .mc-label{font-size:12px;color:var(--text2);margin-top:4px;}
-  .mc-trend{font-size:11px;margin-top:6px;font-weight:500;}
-  .trend-up{color:var(--green);}.trend-down{color:var(--red);}.trend-neu{color:var(--text3);}
-  .row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
-  .row3{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:16px;}
-  .card{background:var(--surface);border-radius:14px;padding:18px 20px;border:1px solid var(--border);}
-  .card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-  .card-title{font-size:12px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;}
-  .card-link{font-size:12px;color:var(--purple);cursor:pointer;}
-  .legend{display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap;}
-  .leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);}
-  .leg-dot{width:10px;height:10px;border-radius:2px;}
-  .p-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
-  .p-row:last-child{border-bottom:none;}
-  .p-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;}
-  .p-info{flex:1;min-width:0;}
-  .p-name{font-size:13px;color:var(--text);font-weight:500;}
-  .p-role{font-size:11px;color:var(--text2);}
-  .p-bar-wrap{flex:1.5;}
-  .p-bar-track{height:7px;background:var(--bg);border-radius:4px;overflow:hidden;}
-  .p-bar-fill{height:100%;border-radius:4px;}
-  .p-pct{font-size:13px;font-weight:600;min-width:36px;text-align:right;}
-  .mtype-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-  .mtype-card{background:var(--surface2);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;}
-  .mtype-name{font-size:13px;font-weight:500;color:var(--text);}
-  .mtype-count{font-size:11px;color:var(--text2);margin-top:2px;}
-  .mtype-pct{font-size:20px;font-weight:600;}
-  .aibox{background:linear-gradient(135deg,#EEEDFE,#E6F1FB);border:1px solid #CECBF6;border-radius:14px;padding:18px 20px;margin-bottom:16px;}
-  .ai-hdr{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-  .ai-spark{width:28px;height:28px;background:var(--purple);border-radius:7px;display:flex;align-items:center;justify-content:center;}
-  .ai-spark svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2;}
-  .ai-label{font-size:11px;font-weight:600;color:#3C3489;text-transform:uppercase;letter-spacing:.07em;}
-  .ai-source{font-size:11px;color:#7F77DD;margin-left:auto;}
-  .ai-text{font-size:14px;color:var(--text);line-height:1.7;}
-  .alert{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;margin-bottom:16px;}
-  .alert-warn{background:var(--amber-lt);border:1px solid rgba(239,159,39,0.3);}
-  .alert-text{font-size:13px;color:var(--text);flex:1;}
-  .alert-dismiss{font-size:12px;color:var(--text2);cursor:pointer;padding:3px 8px;border-radius:4px;border:none;background:none;font-family:'DM Sans',sans-serif;}
-  .datasource-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:20px;background:var(--green-lt);color:var(--green);font-weight:500;margin-left:8px;}
-  .loading{opacity:0.5;pointer-events:none;}
-  .footer{text-align:center;font-size:11px;color:var(--text3);padding:16px 0 4px;}
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap');
+:root{
+  --navy:#1E2761;--purple:#464EB8;--purple-lt:#EEEDFE;
+  --green:#1D9E75;--green-lt:#E1F5EE;
+  --amber:#EF9F27;--amber-lt:#FAEEDA;
+  --red:#E24B4A;--red-lt:#FCEBEB;
+  --teal:#028090;--teal-lt:#E1F5F8;
+  --bg:#F4F6FB;--surface:#FFFFFF;--surface2:#F1F4FA;
+  --border:rgba(30,39,97,0.10);
+  --text:#1E2761;--text2:#5A6490;--text3:#8E97C0;
+  --sw:230px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sw);background:var(--navy);min-height:100vh;position:fixed;left:0;top:0;bottom:0;display:flex;flex-direction:column;z-index:100;}
+.sb-logo{padding:18px 18px 14px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px;}
+.sb-logo-icon{width:34px;height:34px;background:var(--purple);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;}
+.sb-logo-text{font-size:15px;font-weight:600;color:#fff;}
+.sb-logo-sub{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:.06em;text-transform:uppercase;}
+.sb-score{margin:12px 10px;background:rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;text-align:center;border:1px solid rgba(255,255,255,0.08);}
+.sb-score-val{font-size:32px;font-weight:600;color:var(--green);line-height:1;}
+.sb-score-lbl{font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.06em;margin-top:3px;}
+.sb-score-trend{font-size:11px;color:var(--green);margin-top:4px;font-weight:500;}
+.sb-section{padding:16px 14px 6px;font-size:10px;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:.1em;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;color:rgba(255,255,255,0.5);font-size:13px;cursor:pointer;border-radius:7px;margin:2px 8px;transition:all .15s;}
+.sb-item:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85);}
+.sb-item.active{background:rgba(70,78,184,0.45);color:#fff;}
+.sb-item-icon{font-size:15px;flex-shrink:0;}
+.sb-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;padding:2px 6px;border-radius:10px;}
+.sb-bottom{margin-top:auto;padding:14px;border-top:1px solid rgba(255,255,255,0.08);}
+.sb-user{display:flex;align-items:center;gap:8px;}
+.sb-av{width:30px;height:30px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;}
+.sb-uname{font-size:12px;color:rgba(255,255,255,0.7);font-weight:500;}
+.sb-urole{font-size:10px;color:rgba(255,255,255,0.3);}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.page-title{font-size:18px;font-weight:600;color:var(--text);}
+.page-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.date-chip{font-size:12px;color:var(--text2);background:var(--surface2);border:1px solid var(--border);padding:5px 12px;border-radius:20px;}
+.export-btn{font-size:12px;font-weight:500;padding:7px 16px;border-radius:8px;background:var(--purple);color:#fff;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .15s;}
+.export-btn:hover{opacity:.85;}
+.content{padding:24px 28px;flex:1;}
+
+/* ── TILE NAVIGATION ── */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+.tile{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:16px 18px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;}
+.tile:hover{border-color:var(--purple);transform:translateY(-1px);}
+.tile.active{border-color:var(--purple);border-width:2px;background:var(--purple-lt);}
+.tile-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:18px;}
+.tile-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.tile-sub{font-size:11px;color:var(--text2);line-height:1.4;}
+.tile-stat{position:absolute;top:14px;right:16px;font-size:22px;font-weight:600;}
+.tile-badge{position:absolute;top:12px;right:12px;font-size:10px;padding:3px 8px;border-radius:10px;font-weight:500;}
+
+/* ── PANELS ── */
+.panel{display:none;}
+.panel.active{display:block;}
+
+/* ── SHARED COMPONENTS ── */
+.card{background:var(--surface);border-radius:14px;padding:18px 20px;border:1px solid var(--border);}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.card-title{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;}
+.card-link{font-size:12px;color:var(--purple);cursor:pointer;font-weight:500;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.row3{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:14px;}
+.row4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+
+/* Metric cards */
+.mc{background:var(--surface);border-radius:12px;padding:14px 16px;border:1px solid var(--border);}
+.mc-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;font-size:15px;}
+.mc-val{font-size:24px;font-weight:600;color:var(--text);line-height:1;}
+.mc-label{font-size:11px;color:var(--text2);margin-top:4px;}
+.mc-trend{font-size:11px;margin-top:5px;font-weight:500;}
+.up{color:var(--green);}.dn{color:var(--red);}.neu{color:var(--text3);}
+
+/* AI insight */
+.aibox{background:linear-gradient(135deg,#EEEDFE,#EBF4FD);border:1px solid #CECBF6;border-radius:14px;padding:16px 18px;margin-bottom:14px;}
+.ai-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.ai-spark{width:26px;height:26px;background:var(--purple);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.ai-label{font-size:11px;font-weight:600;color:#3C3489;text-transform:uppercase;letter-spacing:.06em;}
+.ai-text{font-size:13px;color:var(--text);line-height:1.65;}
+.ai-action{margin-top:10px;}
+.ai-action button{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid #CECBF6;background:rgba(255,255,255,0.7);color:#3C3489;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.ai-action button:hover{background:#fff;}
+
+/* Dept bars */
+.dept-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.dept-row:last-child{margin-bottom:0;}
+.dept-name{font-size:12px;color:var(--text2);min-width:78px;}
+.dept-track{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.dept-fill{height:100%;border-radius:4px;}
+.dept-pct{font-size:12px;font-weight:600;min-width:32px;text-align:right;}
+
+/* Participant rows */
+.p-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+.p-row:last-child{border-bottom:none;}
+.p-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;}
+.p-info{flex:1;}
+.p-name{font-size:13px;font-weight:500;color:var(--text);}
+.p-role{font-size:11px;color:var(--text2);}
+.p-bar-wrap{flex:1.5;}
+.p-bar-track{height:7px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.p-bar-fill{height:100%;border-radius:4px;}
+.p-pct{font-size:13px;font-weight:600;min-width:34px;text-align:right;}
+
+/* Meeting type tiles */
+.mtype-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.mtype-card{background:var(--surface2);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;}
+.mtype-name{font-size:13px;font-weight:500;color:var(--text);}
+.mtype-cnt{font-size:11px;color:var(--text2);margin-top:2px;}
+.mtype-pct{font-size:20px;font-weight:600;}
+
+/* Alert */
+.alert{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;margin-bottom:16px;background:var(--amber-lt);border:1px solid rgba(239,159,39,0.25);}
+.alert-text{font-size:13px;color:var(--text);flex:1;}
+.alert-dismiss{font-size:12px;color:var(--text2);cursor:pointer;padding:3px 8px;border:none;background:none;font-family:'DM Sans',sans-serif;border-radius:4px;}
+.alert-dismiss:hover{background:rgba(0,0,0,0.05);}
+
+/* ── COST TAB ── */
+.cost-hero{background:var(--navy);border-radius:16px;padding:22px 26px;margin-bottom:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.ch-val{font-size:26px;font-weight:600;line-height:1;}
+.ch-lbl{font-size:11px;color:rgba(255,255,255,0.45);margin-top:4px;text-transform:uppercase;letter-spacing:.04em;}
+.ch-sub{font-size:10px;color:rgba(255,255,255,0.3);margin-top:3px;}
+.ctrl-card{background:var(--surface);border-radius:14px;padding:18px 20px;border:1px solid var(--border);}
+.ctrl-section{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;}
+.ctrl-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.ctrl-row:last-child{margin-bottom:0;}
+.ctrl-label{font-size:13px;color:var(--text2);flex:1;}
+.ctrl-out{font-size:13px;font-weight:600;color:var(--text);min-width:58px;text-align:right;}
+input[type=range]{flex:1.2;accent-color:var(--purple);}
+.waste-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;}
+.waste-card{border-radius:12px;padding:16px;}
+.waste-val{font-size:20px;font-weight:600;}
+.waste-lbl{font-size:12px;font-weight:500;margin-top:4px;}
+.waste-sub{font-size:11px;margin-top:2px;opacity:.75;}
+.mb-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.mb-row:last-child{margin-bottom:0;}
+.mb-name{font-size:12px;font-weight:500;color:var(--text);min-width:80px;}
+.mb-track{flex:1;height:20px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.mb-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:10px;font-weight:600;color:#fff;transition:width .4s;}
+.mb-cost{font-size:12px;font-weight:600;min-width:60px;text-align:right;}
+.mb-annual{font-size:11px;color:var(--text2);min-width:82px;text-align:right;}
+
+/* ── HEALTH SCORE TAB ── */
+.score-hero{background:var(--navy);border-radius:16px;padding:24px 28px;margin-bottom:16px;display:flex;align-items:center;gap:28px;}
+.score-info{flex:1;}
+.score-title{font-size:20px;font-weight:600;color:#fff;margin-bottom:6px;}
+.score-desc{font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;margin-bottom:12px;}
+.score-badges{display:flex;gap:10px;}
+.score-badge{background:rgba(255,255,255,0.08);border-radius:8px;padding:8px 14px;text-align:center;}
+.score-badge-val{font-size:16px;font-weight:600;}
+.score-badge-lbl{font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px;}
+.component-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;}
+.comp-card{background:var(--surface);border-radius:12px;padding:14px 16px;border:1px solid var(--border);position:relative;overflow:hidden;}
+.comp-top{height:4px;border-radius:4px 4px 0 0;position:absolute;top:0;left:0;right:0;}
+.comp-weight{font-size:10px;font-weight:600;padding:3px 8px;border-radius:10px;display:inline-block;margin-bottom:8px;}
+.comp-score{font-size:22px;font-weight:600;line-height:1;}
+.comp-title{font-size:12px;font-weight:600;color:var(--text);margin-top:4px;margin-bottom:6px;}
+.comp-items{font-size:11px;color:var(--text2);line-height:1.7;}
+.comp-trend{font-size:11px;font-weight:600;margin-top:6px;}
+.comp-source{font-size:10px;color:var(--text3);margin-top:6px;font-style:italic;}
+.formula-bar{background:var(--navy);border-radius:10px;padding:12px 16px;margin-bottom:14px;text-align:center;}
+.formula-text{font-size:12px;color:rgba(255,255,255,0.75);font-family:monospace;}
+.rec-list{display:flex;flex-direction:column;gap:0;}
+.rec-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.rec-item:last-child{border-bottom:none;}
+.rec-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.rec-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.rec-desc{font-size:12px;color:var(--text2);line-height:1.5;}
+.rec-saving{font-size:11px;font-weight:600;margin-top:3px;}
+.benchmark-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px;}
+.bench-item{background:var(--surface);border-radius:10px;padding:10px;text-align:center;border:1px solid var(--border);}
+.bench-val{font-size:14px;font-weight:600;}
+.bench-lbl{font-size:10px;color:var(--text2);margin-top:3px;}
+
+/* ── DIGEST TAB ── */
+.digest-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:14px;}
+.digest-hdr{background:var(--navy);padding:16px 20px;}
+.digest-from{font-size:11px;color:rgba(255,255,255,0.4);}
+.digest-subject{font-size:15px;font-weight:600;color:#fff;margin-top:3px;}
+.digest-to{font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;}
+.digest-body{padding:20px;}
+.digest-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.dm{background:var(--surface2);border-radius:10px;padding:12px;text-align:center;}
+.dm-val{font-size:20px;font-weight:600;line-height:1;}
+.dm-lbl{font-size:10px;color:var(--text2);margin-top:4px;}
+.digest-ai{background:var(--purple-lt);border:1px solid #CECBF6;border-radius:10px;padding:14px 16px;margin-bottom:14px;}
+.digest-ai-lbl{font-size:11px;font-weight:600;color:#3C3489;margin-bottom:6px;}
+.digest-ai-txt{font-size:13px;color:#26215C;line-height:1.65;font-style:italic;}
+.digest-teams{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.dt-card{background:var(--surface2);border-radius:10px;padding:12px 14px;}
+.dt-label{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}
+.dt-val{font-size:15px;font-weight:600;}
+.dt-sub{font-size:11px;color:var(--text2);margin-top:2px;}
+.digest-send{background:var(--purple);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;}
+
+/* Filters */
+.filter-row{display:flex;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+.fbtn{font-size:12px;padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.fbtn:hover{border-color:var(--purple);color:var(--purple);}
+.fbtn.active{background:var(--purple);color:#fff;border-color:var(--purple);}
+
+.legend{display:flex;gap:12px;flex-wrap:wrap;}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);}
+.leg-dot{width:9px;height:9px;border-radius:2px;}
+
+.footer{text-align:center;font-size:11px;color:var(--text3);padding:14px 0 4px;}
 </style>
 </head>
 <body>
 
+<!-- ══ SIDEBAR ══ -->
 <div class="sidebar">
   <div class="sb-logo">
-    <div class="sb-logo-icon"><svg viewBox="0 0 24 24"><path d="M15 10l-4 4l6 6l4-16l-18 7l4 2l2 6l3-4"/></svg></div>
-    <div><div class="sb-logo-text">EngageIQ</div><div class="sb-logo-sub">Camera Intelligence</div></div>
+    <div class="sb-logo-icon">📊</div>
+    <div>
+      <div class="sb-logo-text">EngageIQ</div>
+      <div class="sb-logo-sub">Meeting Intelligence</div>
+    </div>
   </div>
-  <div class="sb-section">Overview</div>
-  <div class="sb-item active"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
-  <div class="sb-item"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Live meetings<span class="sb-badge">3</span></div>
-  <div class="sb-item"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Participants</div>
+
+  <div class="sb-score">
+    <div class="sb-score-val" id="sb-score-val">61</div>
+    <div class="sb-score-lbl">Meeting Health Score</div>
+    <div class="sb-score-trend">↑ 4pts this week</div>
+  </div>
+
+  <div class="sb-section">Platform</div>
+  <div class="sb-item active" onclick="showPanel('engage',this)">
+    <span class="sb-item-icon">📹</span> Engagement
+  </div>
+  <div class="sb-item" onclick="showPanel('cost',this)">
+    <span class="sb-item-icon">💰</span> Cost Intelligence
+  </div>
+  <div class="sb-item" onclick="showPanel('health',this)">
+    <span class="sb-item-icon">❤️</span> Health Score
+  </div>
+  <div class="sb-item" onclick="showPanel('digest',this)">
+    <span class="sb-item-icon">📧</span> Weekly Digest
+    <span class="sb-badge">New</span>
+  </div>
+
   <div class="sb-section">Analytics</div>
-  <div class="sb-item"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Trends</div>
-  <div class="sb-item"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18.4 14l-6.4-6.4l-4 4l-3-3"/></svg>Reports</div>
-  <div class="sb-section">Settings</div>
-  <div class="sb-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</div>
+  <div class="sb-item">
+    <span class="sb-item-icon">👥</span> Participants
+  </div>
+  <div class="sb-item">
+    <span class="sb-item-icon">📈</span> Reports
+  </div>
+  <div class="sb-item">
+    <span class="sb-item-icon">⚙️</span> Settings
+  </div>
+
   <div class="sb-bottom">
     <div class="sb-user">
       <div class="sb-av">YM</div>
-      <div><div class="sb-uname">Your Name</div><div class="sb-urole">Manager</div></div>
+      <div>
+        <div class="sb-uname">Your Name</div>
+        <div class="sb-urole">Manager · Demo</div>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- ══ MAIN ══ -->
 <div class="main">
   <div class="topbar">
     <div>
-      <div class="page-title">Meeting Engagement <span class="datasource-pill" id="dataSourcePill">● Mock data</span></div>
-      <div class="page-sub" id="pageSubtitle">Loading...</div>
+      <div class="page-title" id="page-title">Engagement Dashboard</div>
+      <div class="page-sub" id="page-sub">Tracking 347 meetings · May 2026 · 5 departments</div>
     </div>
     <div class="topbar-right">
-      <div class="date-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>May 2026</div>
-      <button class="export-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export report</button>
+      <div class="date-chip">May 2026</div>
+      <button class="export-btn" onclick="alert('In production: exports a PDF or CSV report.')">Export report</button>
     </div>
   </div>
 
-  <div class="alert alert-warn" id="alertBanner">
-    <div style="width:24px;height:24px;border-radius:6px;background:rgba(239,159,39,0.2);color:var(--amber);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-    <div class="alert-text"><strong>Attention:</strong> Support department camera engagement is at 29% this week — down 8% from last week. Consider a manager check-in.</div>
-    <button class="alert-dismiss" onclick="document.getElementById('alertBanner').style.display='none'">Dismiss</button>
-  </div>
+  <div class="content">
 
-  <div class="filter-row">
-    <span class="filter-label">Meeting type:</span>
-    <button class="fbtn active" onclick="setFilter(this,'all')">All meetings</button>
-    <button class="fbtn" onclick="setFilter(this,'standup')">Standup</button>
-    <button class="fbtn" onclick="setFilter(this,'1on1')">1-on-1</button>
-    <button class="fbtn" onclick="setFilter(this,'allhands')">All-hands</button>
-    <button class="fbtn" onclick="setFilter(this,'townhall')">Town hall</button>
-    <select class="dept-select" id="deptSel" onchange="loadData()">
-      <option value="all">All departments</option>
-      <option value="engineering">Engineering</option>
-      <option value="product">Product</option>
-      <option value="sales">Sales</option>
-      <option value="operations">Operations</option>
-      <option value="support">Support</option>
-    </select>
-  </div>
-
-  <div class="metrics" id="metricsRow">
-    <div class="mc"><div class="mc-icon" style="background:#EEEDFE;color:#464EB8;"><svg viewBox="0 0 24 24"><path d="M15 10l-4 4l6 6l4-16l-18 7l4 2l2 6l3-4"/></svg></div><div class="mc-val" id="m-avg">—</div><div class="mc-label">Avg camera on rate</div><div class="mc-trend" id="m-avg-trend">Loading...</div></div>
-    <div class="mc"><div class="mc-icon" style="background:#E1F5EE;color:#1D9E75;"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="mc-val" id="m-meets">—</div><div class="mc-label">Meetings analysed</div><div class="mc-trend trend-neu" id="m-meets-sub">Loading...</div></div>
-    <div class="mc"><div class="mc-icon" style="background:#E6F1FB;color:#185FA5;"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="mc-val" id="m-parts">—</div><div class="mc-label">Total participants</div><div class="mc-trend trend-down">↓ 3% vs last month</div></div>
-    <div class="mc"><div class="mc-icon" style="background:#FAEEDA;color:#BA7517;"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="mc-val" id="m-dur">—</div><div class="mc-label">Avg meeting duration</div><div class="mc-trend trend-neu">Peak: Tue 10–11am</div></div>
-  </div>
-
-  <div class="aibox">
-    <div class="ai-hdr">
-      <div class="ai-spark"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87l1.18 6.88L12 17.77l-6.18 3.25L7 14.14L2 9.27l6.91-1.01L12 2z"/></svg></div>
-      <span class="ai-label">Claude AI · Smart insight</span>
-      <span class="ai-source" id="aiSource">Loading...</span>
-    </div>
-    <div class="ai-text" id="aiText">Analysing your meeting data...</div>
-  </div>
-
-  <div class="row2">
-    <div class="card">
-      <div class="card-hdr">
-        <div class="card-title">Weekly camera on trend</div>
-        <div class="legend"><div class="leg-item"><span class="leg-dot" style="background:#1D9E75;"></span>On</div><div class="leg-item"><span class="leg-dot" style="background:#E24B4A;"></span>Off</div></div>
+    <!-- TILE NAVIGATION -->
+    <div class="tiles">
+      <div class="tile active" id="tile-engage" onclick="showPanel('engage',null)">
+        <div class="tile-icon" style="background:#EEEDFE;">📹</div>
+        <div class="tile-title">Engagement</div>
+        <div class="tile-sub">Camera &amp; participation</div>
+        <div class="tile-stat" style="color:#464EB8;" id="t-engage">62%</div>
       </div>
-      <div style="position:relative;height:180px;"><canvas id="trendChart" role="img" aria-label="Weekly camera trend line chart">Weekly trend</canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-hdr"><div class="card-title">By meeting type</div></div>
-      <div class="mtype-grid" id="mtypeGrid">
-        <div class="mtype-card"><div><div class="mtype-name">Loading...</div></div></div>
+      <div class="tile" id="tile-cost" onclick="showPanel('cost',null)">
+        <div class="tile-icon" style="background:#FCEBEB;">💰</div>
+        <div class="tile-title">Cost Intelligence</div>
+        <div class="tile-sub">Meeting spend calculator</div>
+        <div class="tile-stat" style="color:#E24B4A;" id="t-cost">£2.4M</div>
+      </div>
+      <div class="tile" id="tile-health" onclick="showPanel('health',null)">
+        <div class="tile-icon" style="background:#E1F5EE;">❤️</div>
+        <div class="tile-title">Health Score</div>
+        <div class="tile-sub">4-component formula</div>
+        <div class="tile-stat" style="color:#1D9E75;" id="t-health">61</div>
+      </div>
+      <div class="tile" id="tile-digest" onclick="showPanel('digest',null)">
+        <div class="tile-icon" style="background:#FAEEDA;">📧</div>
+        <div class="tile-title">Weekly Digest</div>
+        <div class="tile-sub">Monday morning email</div>
+        <div class="tile-badge" style="background:#FAEEDA;color:#854F0B;">Every Monday</div>
       </div>
     </div>
-  </div>
 
-  <div class="row3">
-    <div class="card">
-      <div class="card-hdr"><div class="card-title">Participant camera engagement</div><div class="card-link">View all →</div></div>
-      <div id="pTable"></div>
-    </div>
-    <div class="card">
-      <div class="card-hdr"><div class="card-title">Department breakdown</div></div>
-      <div style="position:relative;height:220px;"><canvas id="deptChart" role="img" aria-label="Department camera rates horizontal bar chart">Department rates</canvas></div>
-    </div>
-  </div>
+    <!-- ══════════════════════════════════ -->
+    <!-- PANEL 1: ENGAGEMENT -->
+    <!-- ══════════════════════════════════ -->
+    <div class="panel active" id="panel-engage">
 
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;"><div><div style="font-size:13px;font-weight:500;color:var(--text);">Microsoft Graph API Connection</div><div style="font-size:12px;color:var(--text2);margin-top:3px;" id="apiStatusText">Click Test Connection to verify your Azure credentials</div></div><div style="display:flex;align-items:center;gap:10px;"><span id="apiStatusBadge" style="font-size:12px;padding:4px 12px;border-radius:20px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);">Not tested</span><button onclick="testApiConnection()" style="font-size:12px;font-weight:500;padding:7px 16px;border-radius:8px;background:var(--purple);color:#fff;border:none;cursor:pointer;font-family:DM Sans,sans-serif;">Test connection</button></div></div><div class="footer">EngageIQ · <span id="footerSource">Mock data</span> · Built with Claude AI · May 2026</div>
+      <div class="alert" id="alertBanner">
+        <span style="font-size:16px;">⚠️</span>
+        <div class="alert-text"><strong>Attention:</strong> Support department camera engagement dropped to 29% — down 8% this week. Consider a manager check-in.</div>
+        <button class="alert-dismiss" onclick="this.closest('.alert').style.display='none'">Dismiss</button>
+      </div>
+
+      <div class="filter-row">
+        <span style="font-size:12px;color:var(--text2);">Meeting type:</span>
+        <button class="fbtn active" onclick="setFilter(this,'all')">All</button>
+        <button class="fbtn" onclick="setFilter(this,'standup')">Standup</button>
+        <button class="fbtn" onclick="setFilter(this,'1on1')">1-on-1</button>
+        <button class="fbtn" onclick="setFilter(this,'allhands')">All-hands</button>
+        <button class="fbtn" onclick="setFilter(this,'townhall')">Town hall</button>
+      </div>
+
+      <div class="row4">
+        <div class="mc"><div class="mc-icon" style="background:#EEEDFE;">📹</div><div class="mc-val" id="e-avg">62%</div><div class="mc-label">Avg camera on</div><div class="mc-trend up" id="e-trend">↑ 8% vs last month</div></div>
+        <div class="mc"><div class="mc-icon" style="background:#E1F5EE;">📅</div><div class="mc-val" id="e-meets">347</div><div class="mc-label">Meetings analysed</div><div class="mc-trend neu">Across 5 depts</div></div>
+        <div class="mc"><div class="mc-icon" style="background:#E6F1FB;">👥</div><div class="mc-val" id="e-parts">1,284</div><div class="mc-label">Participants</div><div class="mc-trend dn">↓ 3% vs last month</div></div>
+        <div class="mc"><div class="mc-icon" style="background:#FAEEDA;">⏱</div><div class="mc-val" id="e-dur">34m</div><div class="mc-label">Avg duration</div><div class="mc-trend neu">Peak: Tue 10am</div></div>
+      </div>
+
+      <div class="row2">
+        <div class="card">
+          <div class="card-hdr">
+            <div class="card-title">Weekly camera trend</div>
+            <div class="legend">
+              <div class="leg"><span class="leg-dot" style="background:#1D9E75;"></span>Camera on</div>
+              <div class="leg"><span class="leg-dot" style="background:#E24B4A;"></span>Camera off</div>
+            </div>
+          </div>
+          <div style="position:relative;height:170px;"><canvas id="trendChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><div class="card-title">By meeting type</div></div>
+          <div class="mtype-grid">
+            <div class="mtype-card"><div><div class="mtype-name">Standup</div><div class="mtype-cnt">112 meetings</div></div><div class="mtype-pct" style="color:#1D9E75;">78%</div></div>
+            <div class="mtype-card"><div><div class="mtype-name">1-on-1</div><div class="mtype-cnt">89 meetings</div></div><div class="mtype-pct" style="color:#1D9E75;">85%</div></div>
+            <div class="mtype-card"><div><div class="mtype-name">All-hands</div><div class="mtype-cnt">67 meetings</div></div><div class="mtype-pct" style="color:#EF9F27;">41%</div></div>
+            <div class="mtype-card"><div><div class="mtype-name">Town hall</div><div class="mtype-cnt">79 meetings</div></div><div class="mtype-pct" style="color:#E24B4A;">22%</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-hdr" style="cursor:pointer;user-select:none;" onclick="toggleParticipants()">
+          <div class="card-title">Participant engagement</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:11px;color:var(--text2);" id="p-toggle-label">Show details</span>
+            <span style="font-size:14px;color:var(--text2);transition:transform .2s;" id="p-toggle-arrow">&#9658;</span>
+          </div>
+        </div>
+        <div id="p-summary" style="display:flex;gap:8px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:6px;background:var(--surface2);border-radius:20px;padding:5px 12px;font-size:12px;"><span style="width:8px;height:8px;border-radius:50%;background:#1D9E75;display:inline-block;"></span>3 highly engaged</div>
+          <div style="display:flex;align-items:center;gap:6px;background:var(--surface2);border-radius:20px;padding:5px 12px;font-size:12px;"><span style="width:8px;height:8px;border-radius:50%;background:#EF9F27;display:inline-block;"></span>1 moderate</div>
+          <div style="display:flex;align-items:center;gap:6px;background:var(--surface2);border-radius:20px;padding:5px 12px;font-size:12px;"><span style="width:8px;height:8px;border-radius:50%;background:#E24B4A;display:inline-block;"></span>1 needs attention</div>
+        </div>
+        <div id="p-detail" style="display:none;margin-top:12px;">
+          <div class="p-row"><div class="p-av" style="background:#B5D4F4;color:#0C447C;">AK</div><div class="p-info"><div class="p-name">Ananya Kumar</div><div class="p-role">Engineering Lead</div></div><div class="p-bar-wrap"><div class="p-bar-track"><div class="p-bar-fill" style="width:94%;background:#1D9E75;"></div></div></div><div class="p-pct" style="color:#1D9E75;">94%</div></div>
+          <div class="p-row"><div class="p-av" style="background:#9FE1CB;color:#085041;">MS</div><div class="p-info"><div class="p-name">Marcus Silva</div><div class="p-role">Product Manager</div></div><div class="p-bar-wrap"><div class="p-bar-track"><div class="p-bar-fill" style="width:88%;background:#1D9E75;"></div></div></div><div class="p-pct" style="color:#1D9E75;">88%</div></div>
+          <div class="p-row"><div class="p-av" style="background:#CECBF6;color:#3C3489;">PL</div><div class="p-info"><div class="p-name">Priya Laxman</div><div class="p-role">Scrum Master</div></div><div class="p-bar-wrap"><div class="p-bar-track"><div class="p-bar-fill" style="width:81%;background:#1D9E75;"></div></div></div><div class="p-pct" style="color:#1D9E75;">81%</div></div>
+          <div class="p-row"><div class="p-av" style="background:#FAC775;color:#633806;">JT</div><div class="p-info"><div class="p-name">James Tran</div><div class="p-role">Solutions Architect</div></div><div class="p-bar-wrap"><div class="p-bar-track"><div class="p-bar-fill" style="width:54%;background:#EF9F27;"></div></div></div><div class="p-pct" style="color:#EF9F27;">54%</div></div>
+          <div class="p-row"><div class="p-av" style="background:#F5C4B3;color:#712B13;">RN</div><div class="p-info"><div class="p-name">Rita Nair</div><div class="p-role">Support Lead</div></div><div class="p-bar-wrap"><div class="p-bar-track"><div class="p-bar-fill" style="width:29%;background:#E24B4A;"></div></div></div><div class="p-pct" style="color:#E24B4A;">29%</div></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-hdr"><div class="card-title">Department breakdown</div></div>
+        <div class="dept-row"><span class="dept-name">Product</span><div class="dept-track"><div class="dept-fill" style="width:81%;background:#1D9E75;"></div></div><span class="dept-pct" style="color:#1D9E75;">81%</span></div>
+        <div class="dept-row"><span class="dept-name">Engineering</span><div class="dept-track"><div class="dept-fill" style="width:72%;background:#1D9E75;"></div></div><span class="dept-pct" style="color:#1D9E75;">72%</span></div>
+        <div class="dept-row"><span class="dept-name">Sales</span><div class="dept-track"><div class="dept-fill" style="width:68%;background:#EF9F27;"></div></div><span class="dept-pct" style="color:#EF9F27;">68%</span></div>
+        <div class="dept-row"><span class="dept-name">Operations</span><div class="dept-track"><div class="dept-fill" style="width:44%;background:#EF9F27;"></div></div><span class="dept-pct" style="color:#EF9F27;">44%</span></div>
+        <div class="dept-row"><span class="dept-name">Support</span><div class="dept-track"><div class="dept-fill" style="width:29%;background:#E24B4A;"></div></div><span class="dept-pct" style="color:#E24B4A;">29%</span></div>
+      </div>
+
+      <div class="aibox">
+        <div class="ai-hdr"><div class="ai-spark">✨</div><span class="ai-label">Claude AI · Engagement insight</span></div>
+        <div class="ai-text" id="e-insight">Camera engagement is up <strong>8%</strong> month-on-month — a positive signal. <strong>Operations (44%)</strong> and <strong>Support (29%)</strong> are significantly below average. Town halls show only 22% engagement — consider splitting into smaller sessions of 15–20. <strong>1-on-1s lead at 85%</strong> — your strongest meeting format.</div>
+        <div class="ai-action"><button onclick="alert('In production: opens a Claude-powered chat to explore recommendations.')">Get recommendations →</button></div>
+      </div>
+      <div class="footer">EngageIQ · Mock data · Built with Claude AI · engageiq-t57j.onrender.com</div>
+    </div>
+
+    <!-- ══════════════════════════════════ -->
+    <!-- PANEL 2: COST INTELLIGENCE -->
+    <!-- ══════════════════════════════════ -->
+    <div class="panel" id="panel-cost">
+      <div class="cost-hero">
+        <div><div class="ch-val" style="color:#E24B4A;" id="c-annual">£2.4M</div><div class="ch-lbl">Annual meeting spend</div><div class="ch-sub">↑ 12% vs last year</div></div>
+        <div><div class="ch-val" style="color:#EF9F27;" id="c-waste">£720K</div><div class="ch-lbl">Estimated waste</div><div class="ch-sub" id="c-waste-pct">30% of total</div></div>
+        <div><div class="ch-val" style="color:#fff;" id="c-perhour">£847</div><div class="ch-lbl">Cost per meeting hour</div><div class="ch-sub" id="c-att-sub">Avg 8 attendees</div></div>
+        <div><div class="ch-val" style="color:#1D9E75;" id="c-saving">£216K</div><div class="ch-lbl">Recoverable value</div><div class="ch-sub">If top 3 issues fixed</div></div>
+      </div>
+
+      <div class="row2">
+        <div class="ctrl-card">
+          <div class="ctrl-section">Your organisation</div>
+          <div class="ctrl-row"><span class="ctrl-label">Total employees</span><input type="range" min="50" max="10000" value="500" step="50" id="c-emp" oninput="calcCost()"><span class="ctrl-out" id="c-emp-out">500</span></div>
+          <div class="ctrl-row"><span class="ctrl-label">Avg annual salary</span><input type="range" min="30000" max="200000" value="80000" step="5000" id="c-sal" oninput="calcCost()"><span class="ctrl-out" id="c-sal-out">£80K</span></div>
+          <div class="ctrl-row"><span class="ctrl-label">Meetings per person/week</span><input type="range" min="1" max="25" value="8" step="1" id="c-mpw" oninput="calcCost()"><span class="ctrl-out" id="c-mpw-out">8</span></div>
+          <div class="ctrl-row"><span class="ctrl-label">Avg attendees per meeting</span><input type="range" min="2" max="50" value="8" step="1" id="c-att" oninput="calcCost()"><span class="ctrl-out" id="c-att-out">8</span></div>
+          <div class="ctrl-row"><span class="ctrl-label">Avg meeting duration</span><input type="range" min="15" max="120" value="45" step="5" id="c-dur" oninput="calcCost()"><span class="ctrl-out" id="c-dur-out">45m</span></div>
+        </div>
+        <div class="ctrl-card">
+          <div class="ctrl-section">Waste signals</div>
+          <div class="ctrl-row"><span class="ctrl-label">Ghost attendees</span><input type="range" min="0" max="60" value="25" step="1" id="c-ghost" oninput="calcCost()"><span class="ctrl-out" id="c-ghost-out">25%</span></div>
+          <div class="ctrl-row"><span class="ctrl-label">Could-be-emails</span><input type="range" min="0" max="80" value="30" step="1" id="c-email" oninput="calcCost()"><span class="ctrl-out" id="c-email-out">30%</span></div>
+          <div class="ctrl-row"><span class="ctrl-label">No-agenda meetings</span><input type="range" min="0" max="80" value="35" step="1" id="c-noagenda" oninput="calcCost()"><span class="ctrl-out" id="c-noagenda-out">35%</span></div>
+          <div class="ctrl-row"><span class="ctrl-label">Back-to-back rate</span><input type="range" min="0" max="80" value="40" step="1" id="c-b2b" oninput="calcCost()"><span class="ctrl-out" id="c-b2b-out">40%</span></div>
+          <div class="ctrl-row"><span class="ctrl-label">Productivity overhead</span><input type="range" min="1.0" max="2.0" value="1.3" step="0.1" id="c-over" oninput="calcCost()"><span class="ctrl-out" id="c-over-out">1.3x</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-hdr"><div class="card-title">Cost by meeting type</div></div>
+        <div id="costBars"></div>
+      </div>
+
+      <div class="waste-row">
+        <div class="waste-card" style="background:#FCEBEB;">
+          <div class="waste-val" style="color:#E24B4A;" id="w-ghost">£180K</div>
+          <div class="waste-lbl" style="color:#A32D2D;">Ghost attendee waste</div>
+          <div class="waste-sub" style="color:#E24B4A;">Salary cost with no contribution</div>
+        </div>
+        <div class="waste-card" style="background:#FAEEDA;">
+          <div class="waste-val" style="color:#EF9F27;" id="w-email">£216K</div>
+          <div class="waste-lbl" style="color:#854F0B;">Could-be-email waste</div>
+          <div class="waste-sub" style="color:#EF9F27;">Meetings needing no discussion</div>
+        </div>
+        <div class="waste-card" style="background:#E1F5EE;">
+          <div class="waste-val" style="color:#1D9E75;" id="w-total">£396K</div>
+          <div class="waste-lbl" style="color:#0F6E56;">Total recoverable value</div>
+          <div class="waste-sub" style="color:#1D9E75;">If EngageIQ recommendations followed</div>
+        </div>
+      </div>
+
+      <div class="aibox">
+        <div class="ai-hdr"><div class="ai-spark">✨</div><span class="ai-label">Claude AI · Cost insight</span></div>
+        <div class="ai-text" id="c-insight">Loading...</div>
+        <div class="ai-action"><button onclick="alert('In production: generates a full cost reduction business case.')">Build business case →</button></div>
+      </div>
+      <div class="footer">EngageIQ · Mock data · Built with Claude AI · engageiq-t57j.onrender.com</div>
+    </div>
+
+    <!-- ══════════════════════════════════ -->
+    <!-- PANEL 3: HEALTH SCORE -->
+    <!-- ══════════════════════════════════ -->
+    <div class="panel" id="panel-health">
+
+      <div class="score-hero">
+        <div>
+          <svg width="130" height="130" viewBox="0 0 130 130" role="img" aria-label="Meeting health score 61 out of 100">
+            <circle cx="65" cy="65" r="52" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="11"/>
+            <circle cx="65" cy="65" r="52" fill="none" stroke="#1D9E75" stroke-width="11" stroke-dasharray="199 327" stroke-dashoffset="82" stroke-linecap="round"/>
+            <text x="65" y="59" text-anchor="middle" font-size="28" font-weight="600" fill="#1D9E75" font-family="DM Sans,sans-serif">61</text>
+            <text x="65" y="76" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.4)" font-family="DM Sans,sans-serif">out of 100</text>
+            <text x="65" y="91" text-anchor="middle" font-size="10" fill="#1D9E75" font-family="DM Sans,sans-serif">↑ 4pts this week</text>
+          </svg>
+        </div>
+        <div class="score-info">
+          <div class="score-title">Meeting Health: Moderate — improving</div>
+          <div class="score-desc">Your organisation's meetings are trending positively but cost efficiency (48/100) is the biggest drag. Following EngageIQ's top 3 recommendations could lift your score to 78+ within 4 weeks.</div>
+          <div class="score-badges">
+            <div class="score-badge"><div class="score-badge-val" style="color:#1D9E75;">↑ 4pts</div><div class="score-badge-lbl">vs last week</div></div>
+            <div class="score-badge"><div class="score-badge-val" style="color:#EF9F27;">↑ 12pts</div><div class="score-badge-lbl">vs last month</div></div>
+            <div class="score-badge"><div class="score-badge-val" style="color:#fff;">Top 35%</div><div class="score-badge-lbl">industry benchmark</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="formula-bar">
+        <div class="formula-text">Health Score = (Engagement × 35%) + (Cost Efficiency × 30%) + (Invite Hygiene × 20%) + (People Health × 15%)</div>
+      </div>
+
+      <div class="component-grid">
+        <div class="comp-card">
+          <div class="comp-top" style="background:#464EB8;"></div>
+          <div class="comp-weight" style="background:#EEEDFE;color:#464EB8;">35% weight</div>
+          <div class="comp-score" style="color:#464EB8;">72<span style="font-size:13px;font-weight:400;">/100</span></div>
+          <div class="comp-title">Engagement Quality</div>
+          <div class="comp-items">• Camera on rate vs avg<br>• Ghost attendee rate<br>• Talk time distribution</div>
+          <div class="comp-trend" style="color:#1D9E75;">↑ Strong</div>
+          <div class="comp-source">Source: Microsoft Work Trend Index 2023</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-top" style="background:#E24B4A;"></div>
+          <div class="comp-weight" style="background:#FCEBEB;color:#E24B4A;">30% weight</div>
+          <div class="comp-score" style="color:#E24B4A;">48<span style="font-size:13px;font-weight:400;">/100</span></div>
+          <div class="comp-title">Cost Efficiency</div>
+          <div class="comp-items">• Spend vs org benchmark<br>• Recurring meeting ROI<br>• Attendees vs meeting type</div>
+          <div class="comp-trend" style="color:#E24B4A;">↓ Biggest gap</div>
+          <div class="comp-source">Source: HBR / Bain &amp; Co research</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-top" style="background:#EF9F27;"></div>
+          <div class="comp-weight" style="background:#FAEEDA;color:#EF9F27;">20% weight</div>
+          <div class="comp-score" style="color:#EF9F27;">61<span style="font-size:13px;font-weight:400;">/100</span></div>
+          <div class="comp-title">Invite Hygiene</div>
+          <div class="comp-items">• % meetings with no agenda<br>• Wrong attendee signals<br>• Last-minute cancellation rate</div>
+          <div class="comp-trend" style="color:#EF9F27;">→ Improving</div>
+          <div class="comp-source">Source: MIT Sloan Management Review</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-top" style="background:#1D9E75;"></div>
+          <div class="comp-weight" style="background:#E1F5EE;color:#1D9E75;">15% weight</div>
+          <div class="comp-score" style="color:#1D9E75;">68<span style="font-size:13px;font-weight:400;">/100</span></div>
+          <div class="comp-title">People Health</div>
+          <div class="comp-items">• Back-to-back meeting rate<br>• Deep work time per day<br>• Meetings outside core hours</div>
+          <div class="comp-trend" style="color:#1D9E75;">↑ Good</div>
+          <div class="comp-source">Source: Microsoft Neuroscience Study 2021</div>
+        </div>
+      </div>
+
+      <div class="benchmark-bar">
+        <div class="bench-item"><div class="bench-val" style="color:#E24B4A;">&lt; 45</div><div class="bench-lbl">Below average</div></div>
+        <div class="bench-item"><div class="bench-val" style="color:#EF9F27;">45 – 65</div><div class="bench-lbl">Average</div></div>
+        <div class="bench-item"><div class="bench-val" style="color:#1D9E75;">65 – 80</div><div class="bench-lbl">Top quartile</div></div>
+        <div class="bench-item"><div class="bench-val" style="color:#028090;">80+</div><div class="bench-lbl">Best in class</div></div>
+        <div class="bench-item" style="border-color:#464EB8;background:#EEEDFE;"><div class="bench-val" style="color:#464EB8;">61 / 100</div><div class="bench-lbl" style="color:#464EB8;">Your score</div></div>
+      </div>
+
+      <div class="row2">
+        <div class="card">
+          <div class="card-hdr"><div class="card-title">8-week health trend</div></div>
+          <div style="position:relative;height:170px;"><canvas id="healthChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><div class="card-title">Top 3 recommendations</div></div>
+          <div class="rec-list">
+            <div class="rec-item"><div class="rec-dot" style="background:#E24B4A;"></div><div><div class="rec-title">Cancel Thursday All-Hands</div><div class="rec-desc">19% engagement rate. Convert to async video + 15-min Q&A.</div><div class="rec-saving" style="color:#1D9E75;">Saves £6,500/month</div></div></div>
+            <div class="rec-item"><div class="rec-dot" style="background:#EF9F27;"></div><div><div class="rec-title">Fix invite hygiene — 35% have no agenda</div><div class="rec-desc">Require agenda for all recurring meetings. Decline without one.</div><div class="rec-saving" style="color:#1D9E75;">Improves score by ~8pts</div></div></div>
+            <div class="rec-item"><div class="rec-dot" style="background:#1D9E75;"></div><div><div class="rec-title">Cancel 3 zombie recurrings</div><div class="rec-desc">Zero action items for 6 consecutive weeks.</div><div class="rec-saving" style="color:#1D9E75;">Recovers 4.5hrs/week</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="aibox">
+        <div class="ai-hdr"><div class="ai-spark">✨</div><span class="ai-label">Claude AI · Health insight</span></div>
+        <div class="ai-text">Your score of <strong>61/100</strong> places you in the top 35% of organisations your size. Cost Efficiency at <strong>48/100</strong> is your biggest drag — driven by high ghost attendee rates and recurring meetings with no measurable outcomes. Addressing invite hygiene alone (currently 35% of meetings have no agenda) could lift your score to <strong>69+</strong> within 2 weeks without any structural changes.</div>
+        <div class="ai-action"><button onclick="alert('In production: generates a 4-week improvement plan.')">Generate improvement plan →</button></div>
+      </div>
+      <div class="footer">EngageIQ · Mock data · Built with Claude AI · engageiq-t57j.onrender.com</div>
+    </div>
+
+    <!-- ══════════════════════════════════ -->
+    <!-- PANEL 4: WEEKLY DIGEST -->
+    <!-- ══════════════════════════════════ -->
+    <div class="panel" id="panel-digest">
+
+      <div class="row2" style="margin-bottom:14px;">
+        <div class="mc"><div class="mc-icon" style="background:#EEEDFE;">📧</div><div class="mc-val">Every Monday</div><div class="mc-label">Digest send time</div><div class="mc-trend neu">7:00am AEST</div></div>
+        <div class="mc"><div class="mc-icon" style="background:#E1F5EE;">👤</div><div class="mc-val">4 leaders</div><div class="mc-label">Configured recipients</div><div class="mc-trend up">Add more →</div></div>
+      </div>
+
+      <div class="digest-wrap">
+        <div class="digest-hdr">
+          <div class="digest-from">From: EngageIQ &lt;digest@engageiq.ai&gt; · Every Monday 7:00am AEST</div>
+          <div class="digest-subject">📊 EngageIQ Weekly Digest — w/c 27 May 2026</div>
+          <div class="digest-to">To: leadership@yourcompany.com</div>
+        </div>
+        <div class="digest-body">
+          <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Good morning. Here's your weekly meeting intelligence summary.</div>
+
+          <div class="digest-metrics">
+            <div class="dm"><div class="dm-val" style="color:#464EB8;">61</div><div class="dm-lbl">Health Score</div></div>
+            <div class="dm"><div class="dm-val" style="color:#E24B4A;">£47,200</div><div class="dm-lbl">Week spend</div></div>
+            <div class="dm"><div class="dm-val" style="color:#EF9F27;">23%</div><div class="dm-lbl">Waste rate</div></div>
+            <div class="dm"><div class="dm-val" style="color:#1D9E75;">↑ 4pts</div><div class="dm-lbl">vs last week</div></div>
+          </div>
+
+          <div class="digest-ai">
+            <div class="digest-ai-lbl">✨ Claude AI — recommendation this week</div>
+            <div class="digest-ai-txt">"Your Thursday All-Hands (32 attendees, 60 mins) costs £8,200/month with 19% camera engagement — the lowest in your organisation. Converting to async video + 15-min live Q&A could save £78,000 annually while improving engagement scores."</div>
+          </div>
+
+          <div class="digest-teams">
+            <div class="dt-card">
+              <div class="dt-label">Most engaged team</div>
+              <div class="dt-val" style="color:#1D9E75;">Product</div>
+              <div class="dt-sub">81% camera rate · ↑ 3% this week</div>
+            </div>
+            <div class="dt-card">
+              <div class="dt-label">Needs attention</div>
+              <div class="dt-val" style="color:#E24B4A;">Support</div>
+              <div class="dt-sub">29% camera rate · ↓ 8% this week</div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:12px;">
+            <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">This week's invite hygiene flags</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div style="background:var(--surface2);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--text2);">⚠️ <strong>14 recurring meetings</strong> sent this week with no agenda</div>
+              <div style="background:var(--surface2);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--text2);">⚠️ <strong>3 meetings cancelled</strong> within 2 hours of start time</div>
+              <div style="background:var(--surface2);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--text2);">✅ <strong>Deep work time</strong> averaged 2.8hrs/day — above target</div>
+            </div>
+          </div>
+
+          <button class="digest-send" onclick="alert('In production: sends a live test digest to your inbox right now.')">Send test digest to my inbox →</button>
+          <div style="font-size:11px;color:var(--text2);margin-top:10px;">Receiving this because you are listed as a leader. <span style="color:var(--purple);cursor:pointer;">Manage preferences</span></div>
+        </div>
+      </div>
+
+      <div class="aibox">
+        <div class="ai-hdr"><div class="ai-spark">✨</div><span class="ai-label">Claude AI · Digest insight</span></div>
+        <div class="ai-text">This week's digest shows <strong>steady improvement</strong> — your Health Score has risen 4 consecutive weeks. The invite hygiene flags are new this week and worth addressing: 14 agendaless recurring meetings represent a quick cultural fix with measurable score impact. Share this digest with your team leads and ask them to add agendas to their standing meetings.</div>
+        <div class="ai-action"><button onclick="alert('In production: drafts a message to your team about this week\'s digest findings.')">Draft team message →</button></div>
+      </div>
+      <div class="footer">EngageIQ · Mock data · Built with Claude AI · engageiq-t57j.onrender.com</div>
+    </div>
+
+  </div>
 </div>
 
 <script>
-let currentFilter = 'all';
-let tChart, dChart;
-const API = '';  // Empty = same origin. Change to 'https://your-app.onrender.com' after hosting
+const pages = {
+  engage: { title:'Engagement Dashboard', sub:'Tracking 347 meetings · May 2026 · 5 departments' },
+  cost:   { title:'Cost Intelligence', sub:'Adjust sliders to match your organisation' },
+  health: { title:'Meeting Health Score', sub:'4-component formula · Traceable · Benchmarked · Actionable' },
+  digest: { title:'Weekly Digest', sub:'Monday morning email — previewed and configurable' },
+};
 
-const avColors = [
-  ['#B5D4F4','#0C447C'],['#9FE1CB','#085041'],['#CECBF6','#3C3489'],
-  ['#FAC775','#633806'],['#F5C4B3','#712B13'],['#E6F1FB','#185FA5'],
-  ['#EAF3DE','#3B6D11'],['#FAEEDA','#854F0B'],['#FCEBEB','#A32D2D'],['#E1F5EE','#0F6E56']
+const engData = {
+  all:      { avg:'62%', meets:'347', parts:'1,284', dur:'34m', trendClass:'up', trend:'↑ 8% vs last month', on:[54,58,61,66], off:[46,42,39,34], insight:'Camera engagement is up <strong>8%</strong> month-on-month. <strong>Operations (44%)</strong> and <strong>Support (29%)</strong> need attention. Town halls show only 22% — consider smaller sessions. <strong>1-on-1s lead at 85%.</strong>' },
+  standup:  { avg:'78%', meets:'112', parts:'448',   dur:'18m', trendClass:'up', trend:'↑ 12% vs last month', on:[68,72,74,80], off:[32,28,26,20], insight:'Standup engagement is <strong>strong at 78%</strong> and growing. Engineering leads at 84% — share their format as a best practice across all teams.' },
+  '1on1':   { avg:'85%', meets:'89',  parts:'178',   dur:'28m', trendClass:'up', trend:'↑ 5% vs last month',  on:[78,82,84,90], off:[22,18,16,10], insight:'<strong>1-on-1s are your top format at 85%.</strong> Recommend increasing frequency for Support and Operations where group engagement is low.' },
+  allhands: { avg:'41%', meets:'67',  parts:'536',   dur:'45m', trendClass:'dn', trend:'↓ 2% vs last month',  on:[32,36,39,44], off:[68,64,61,56], insight:'All-hands show only <strong>41% engagement</strong>. Try breakout rooms and live polls to improve participation in large-format meetings.' },
+  townhall: { avg:'22%', meets:'79',  parts:'790',   dur:'55m', trendClass:'dn', trend:'↓ 5% vs last month',  on:[15,18,21,26], off:[85,82,79,74], insight:'<strong>Town halls at 22%</strong> are your biggest engagement gap. Restructure into departmental sessions of 30–50 people.' },
+};
+
+const meetingTypes = [
+  {name:'Standup',   freq:5,   att:6,  dur:0.25, col:'#1D9E75'},
+  {name:'1-on-1',    freq:2,   att:2,  dur:0.5,  col:'#464EB8'},
+  {name:'All-hands', freq:0.5, att:20, dur:0.75, col:'#EF9F27'},
+  {name:'Town hall', freq:0.2, att:50, dur:1.0,  col:'#E24B4A'},
+  {name:'Project',   freq:3,   att:8,  dur:0.75, col:'#028090'},
 ];
 
-function pctColor(v) {
-  return v >= 70 ? '#1D9E75' : v >= 50 ? '#EF9F27' : '#E24B4A';
-}
+let currentFilter='all', tChart, hChart;
 
-async function loadData() {
-  const dept = document.getElementById('deptSel').value;
-  try {
-    const res = await fetch(`${API}/api/meetings?filter=${currentFilter}&dept=${dept}`);
-    const json = await res.json();
-    if (json.success) renderAll(json.data);
-  } catch(e) {
-    console.error('API error:', e);
-  }
+function pColor(v){ return v>=70?'#1D9E75':v>=50?'#EF9F27':'#E24B4A'; }
+function fmt(n){ if(n>=1000000) return'£'+(n/1000000).toFixed(1)+'M'; if(n>=1000) return'£'+Math.round(n/1000)+'K'; return'£'+Math.round(n); }
 
-  try {
-    const res2 = await fetch(`${API}/api/insights?filter=${currentFilter}`);
-    const json2 = await res2.json();
-    if (json2.success) {
-      document.getElementById('aiText').textContent = json2.insight;
-      document.getElementById('aiSource').textContent = json2.source === 'claude-live' ? 'Live · Claude Sonnet' : 'Mock insight';
-    }
-  } catch(e) {}
-}
-
-function renderAll(data) {
-  // Metrics
-  const s = data.summary;
-  document.getElementById('m-avg').textContent = s.avgCamera + '%';
-  document.getElementById('m-meets').textContent = s.meetings.toLocaleString();
-  document.getElementById('m-parts').textContent = s.participants.toLocaleString();
-  document.getElementById('m-dur').textContent = s.avgDuration + 'm';
-  const trendEl = document.getElementById('m-avg-trend');
-  const isUp = s.trend.startsWith('+');
-  trendEl.textContent = (isUp ? '↑ ' : '↓ ') + s.trend.replace(/[+-]/,'') + ' vs last month';
-  trendEl.className = 'mc-trend ' + (isUp ? 'trend-up' : 'trend-down');
-  document.getElementById('m-meets-sub').textContent = `Across 5 departments`;
-  document.getElementById('pageSubtitle').textContent = `Tracking ${s.meetings} meetings · May 2026 · 5 departments`;
-
-  // Data source pill
-  const src = data.dataSource === 'live' ? '● Live Teams data' : '● Mock data';
-  document.getElementById('dataSourcePill').textContent = src;
-  document.getElementById('footerSource').textContent = data.dataSource === 'live' ? 'Live Microsoft Teams data' : 'Mock data';
-
-  // Trend chart
-  const t = data.trend;
-  if (tChart) tChart.destroy();
-  tChart = new Chart(document.getElementById('trendChart'), {
-    type:'line',
-    data:{
-      labels:['Week 1','Week 2','Week 3','Week 4'],
-      datasets:[
-        {label:'On',data:t.on,borderColor:'#1D9E75',backgroundColor:'rgba(29,158,117,0.07)',fill:true,tension:0.4,pointRadius:5,pointBackgroundColor:'#1D9E75'},
-        {label:'Off',data:t.off,borderColor:'#E24B4A',backgroundColor:'rgba(226,75,74,0.05)',fill:true,tension:0.4,pointRadius:5,pointBackgroundColor:'#E24B4A',borderDash:[5,4]}
-      ]
-    },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%',color:'#8E97C0',font:{size:10}},grid:{color:'rgba(30,39,97,0.06)'}},x:{ticks:{color:'#8E97C0',font:{size:10}},grid:{color:'rgba(30,39,97,0.06)'}}}}
-  });
-
-  // Meeting type cards
-  const colors = {'standup':'#1D9E75','1on1':'#1D9E75','allhands':'#EF9F27','townhall':'#E24B4A'};
-  document.getElementById('mtypeGrid').innerHTML = data.meetingTypes.map(m =>
-    `<div class="mtype-card"><div><div class="mtype-name">${m.label}</div><div class="mtype-count">${m.count} meetings</div></div><div class="mtype-pct" style="color:${colors[m.key]||'#464EB8'};">${Math.round(m.avgCamera*100)}%</div></div>`
-  ).join('');
-
-  // Participants table
-  document.getElementById('pTable').innerHTML = data.participants.slice(0,6).map((p,i) => {
-    const [bg,fg] = avColors[i % avColors.length];
-    const pct = Math.round(p.cameraRate * 100);
-    return `<div class="p-row">
-      <div class="p-av" style="background:${bg};color:${fg};">${p.initials}</div>
-      <div class="p-info"><div class="p-name">${p.name}</div><div class="p-role">${p.role}</div></div>
-      <div class="p-bar-wrap"><div class="p-bar-track"><div class="p-bar-fill" style="width:${pct}%;background:${pctColor(pct)};"></div></div></div>
-      <div class="p-pct" style="color:${pctColor(pct)};">${pct}%</div>
-    </div>`;
-  }).join('');
-
-  // Dept chart
-  const depts = data.departments;
-  if (dChart) dChart.destroy();
-  dChart = new Chart(document.getElementById('deptChart'), {
-    type:'bar',
-    data:{
-      labels:depts.map(d=>d.name),
-      datasets:[{data:depts.map(d=>Math.round(d.cameraRate*100)),backgroundColor:depts.map(d=>pctColor(Math.round(d.cameraRate*100))),borderRadius:5}]
-    },
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{min:0,max:100,ticks:{callback:v=>v+'%',color:'#8E97C0',font:{size:10}},grid:{color:'rgba(30,39,97,0.06)'}},y:{ticks:{color:'#8E97C0',font:{size:10}},grid:{display:false}}}}
-  });
+function showPanel(name, sidebarEl) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tile').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  document.getElementById('tile-'+name).classList.add('active');
+  if(sidebarEl) sidebarEl.classList.add('active');
+  document.getElementById('page-title').textContent = pages[name].title;
+  document.getElementById('page-sub').textContent = pages[name].sub;
+  if(name==='health') buildHealthChart();
+  if(name==='cost') calcCost();
 }
 
 function setFilter(btn, val) {
   document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   currentFilter = val;
-  loadData();
+  loadEngagement();
 }
 
-// Initial load
-loadData();
+function loadEngagement() {
+  const d = engData[currentFilter];
+  document.getElementById('e-avg').textContent = d.avg;
+  document.getElementById('e-meets').textContent = d.meets;
+  document.getElementById('e-parts').textContent = d.parts;
+  document.getElementById('e-dur').textContent = d.dur;
+  const tEl = document.getElementById('e-trend');
+  tEl.textContent = d.trend; tEl.className = 'mc-trend '+d.trendClass;
+  document.getElementById('e-insight').innerHTML = d.insight;
+  buildTrendChart(d.on, d.off);
+}
 
-async function testApiConnection() {
-  const badge = document.getElementById('apiStatusBadge');
-  const text = document.getElementById('apiStatusText');
-  badge.textContent = 'Testing...';
-  badge.style.background = 'var(--surface2)';
-  badge.style.color = 'var(--text2)';
-  try {
-    const res = await fetch(API + '/api/graph/test');
-    const json = await res.json();
-    if (json.connected) {
-      badge.textContent = '✅ Connected';
-      badge.style.background = '#E1F5EE';
-      badge.style.color = '#1D9E75';
-      text.textContent = 'Connected to: ' + json.organisation + ' · Graph API working!';
-    } else {
-      badge.textContent = '❌ Failed';
-      badge.style.background = '#FCEBEB';
-      badge.style.color = '#E24B4A';
-      text.textContent = json.message;
-    }
-  } catch(e) {
-    badge.textContent = '❌ Error';
-    badge.style.background = '#FCEBEB';
-    badge.style.color = '#E24B4A';
-    text.textContent = 'Could not reach API: ' + e.message;
-  }
+function buildTrendChart(on, off) {
+  if(tChart) tChart.destroy();
+  tChart = new Chart(document.getElementById('trendChart'), {
+    type:'line',
+    data:{ labels:['Wk 1','Wk 2','Wk 3','Wk 4'], datasets:[
+      {label:'On', data:on, borderColor:'#1D9E75', backgroundColor:'rgba(29,158,117,0.07)', fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'#1D9E75'},
+      {label:'Off', data:off, borderColor:'#E24B4A', backgroundColor:'rgba(226,75,74,0.05)', fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'#E24B4A', borderDash:[5,4]}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%',color:'#8E97C0',font:{size:10}},grid:{color:'rgba(30,39,97,0.06)'}},x:{ticks:{color:'#8E97C0',font:{size:10}},grid:{color:'rgba(30,39,97,0.06)'}}}}
+  });
+}
+
+function buildHealthChart() {
+  if(hChart) hChart.destroy();
+  hChart = new Chart(document.getElementById('healthChart'), {
+    type:'line',
+    data:{ labels:['Wk1','Wk2','Wk3','Wk4','Wk5','Wk6','Wk7','Wk8'], datasets:[
+      {label:'Health Score', data:[42,45,49,52,53,57,57,61], borderColor:'#464EB8', backgroundColor:'rgba(70,78,184,0.07)', fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'#464EB8'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{color:'#8E97C0',font:{size:10}},grid:{color:'rgba(30,39,97,0.06)'}},x:{ticks:{color:'#8E97C0',font:{size:10}},grid:{color:'rgba(30,39,97,0.06)'}}}}
+  });
+}
+
+function calcCost() {
+  const emp  = +document.getElementById('c-emp').value;
+  const sal  = +document.getElementById('c-sal').value;
+  const mpw  = +document.getElementById('c-mpw').value;
+  const att  = +document.getElementById('c-att').value;
+  const dur  = +document.getElementById('c-dur').value;
+  const ghost= +document.getElementById('c-ghost').value;
+  const email= +document.getElementById('c-email').value;
+  const noag = +document.getElementById('c-noagenda').value;
+  const b2b  = +document.getElementById('c-b2b').value;
+  const over = +document.getElementById('c-over').value;
+
+  document.getElementById('c-emp-out').textContent = emp.toLocaleString();
+  document.getElementById('c-sal-out').textContent = '£'+Math.round(sal/1000)+'K';
+  document.getElementById('c-mpw-out').textContent = mpw;
+  document.getElementById('c-att-out').textContent = att;
+  document.getElementById('c-dur-out').textContent = dur+'m';
+  document.getElementById('c-ghost-out').textContent = ghost+'%';
+  document.getElementById('c-email-out').textContent = email+'%';
+  document.getElementById('c-noagenda-out').textContent = noag+'%';
+  document.getElementById('c-b2b-out').textContent = b2b+'%';
+  document.getElementById('c-over-out').textContent = over.toFixed(1)+'x';
+
+  const hourly = (sal/52/40)*over;
+  const cph    = hourly * att;
+  const cpm    = cph * (dur/60);
+  const annual = emp * mpw * 52 * cpm;
+  const ghostW = annual * (ghost/100);
+  const emailW = annual * (email/100);
+  const total  = ghostW + emailW;
+  const saving = total * 0.6;
+  const wastePct = Math.round((total/annual)*100);
+
+  document.getElementById('c-annual').textContent = fmt(annual);
+  document.getElementById('c-waste').textContent  = fmt(total);
+  document.getElementById('c-waste-pct').textContent = wastePct+'% of total';
+  document.getElementById('c-perhour').textContent= fmt(cph);
+  document.getElementById('c-att-sub').textContent= 'Avg '+att+' attendees';
+  document.getElementById('c-saving').textContent = fmt(saving);
+  document.getElementById('w-ghost').textContent  = fmt(ghostW);
+  document.getElementById('w-email').textContent  = fmt(emailW);
+  document.getElementById('w-total').textContent  = fmt(saving);
+  document.getElementById('t-cost').textContent   = fmt(annual);
+
+  // Health score update based on inputs
+  const engScore  = Math.round(((100-ghost)*0.5) + (62*0.5));
+  const costScore = Math.max(20, Math.round(100 - wastePct*1.5));
+  const hygScore  = Math.round(100 - noag*0.8);
+  const peopScore = Math.round(100 - b2b*0.6);
+  const health    = Math.round(engScore*0.35 + costScore*0.30 + hygScore*0.20 + peopScore*0.15);
+  document.getElementById('sb-score-val').textContent = Math.min(100,Math.max(1,health));
+  document.getElementById('t-health').textContent = Math.min(100,Math.max(1,health));
+
+  // Meeting type bars
+  const maxC = Math.max(...meetingTypes.map(m=>m.freq*m.att*hourly*m.dur*52));
+  document.getElementById('costBars').innerHTML = meetingTypes.map(m=>{
+    const pm = m.att * hourly * m.dur;
+    const pa = pm * m.freq * 52;
+    const pct = Math.round((pa/maxC)*100);
+    return `<div class="mb-row">
+      <span class="mb-name">${m.name}</span>
+      <div class="mb-track"><div class="mb-fill" style="width:${pct}%;background:${m.col};">${pct>22?fmt(pm):''}</div></div>
+      <span class="mb-cost" style="color:${m.col};">${fmt(pm)}</span>
+      <span class="mb-annual">${fmt(pa)}/yr</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('c-insight').innerHTML = `Your organisation spends approximately <strong>${fmt(annual)}</strong> on meetings annually. With ${ghost}% ghost attendees and ${email}% could-be-emails, an estimated <strong>${fmt(total)} (${wastePct}%)</strong> is recoverable waste. Additionally, ${noag}% of meetings have no agenda — fixing invite hygiene alone could lift your Health Score by 8+ points without any structural change.`;
+}
+
+// Init
+loadEngagement();
+calcCost();
+
+function toggleParticipants() {
+  const detail = document.getElementById('p-detail');
+  const summary = document.getElementById('p-summary');
+  const label = document.getElementById('p-toggle-label');
+  const arrow = document.getElementById('p-toggle-arrow');
+  const isHidden = detail.style.display === 'none';
+  detail.style.display = isHidden ? 'block' : 'none';
+  summary.style.display = isHidden ? 'none' : 'flex';
+  label.textContent = isHidden ? 'Hide details' : 'Show details';
+  arrow.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
 }
 </script>
 </body>
